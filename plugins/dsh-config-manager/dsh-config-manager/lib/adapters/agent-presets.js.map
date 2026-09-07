@@ -1,0 +1,1 @@
+{"version":3,"file":"agent-presets.js","sourceRoot":"","sources":["../../src/adapters/agent-presets.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AACH,OAAO,EAAE,qBAAqB,EAAE,MAAM,sBAAsB,CAAC;AAE7D,MAAM,OAAO,mBAAoB,SAAQ,qBAAqB;IACnD,EAAE,GAAG,cAAuB,CAAC;IAC7B,WAAW,GAAG,eAAe,CAAC;IAC9B,eAAe,GAAG,IAAI,CAAC;IACvB,WAAW,GAAG,UAAmB,CAAC;IAClC,OAAO,GAAG,gBAAgB,CAAC;CACrC"}

@@ -1,0 +1,143 @@
+{
+  "name": "dsh-web-search-aggregation",
+  "version": "0.1.10",
+  "description": "Aggregated web-search provider for DeepSeek Harness: one prioritized queue over AnySearch / TinyFish / Tavily / Brave / Exa / Firecrawl / Jina / SerpApi / Serper, multiple API keys per entry, ordered fallback per request.",
+  "type": "module",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json",
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    }
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts",
+    "src",
+    "cordis.patch.yml",
+    "dsh.plugin.json",
+    "README.md",
+    "README.zh-CN.md",
+    "search-plugin-config.png",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "rm -rf lib && tsc -p tsconfig.build.json --emitDeclarationOnly && tsdown",
+    "prepare": "pnpm run build",
+    "prepublishOnly": "pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "web-search",
+    "search-provider",
+    "aggregation",
+    "fallback",
+    "anysearch",
+    "tinyfish",
+    "tavily",
+    "brave",
+    "brave-search",
+    "exa",
+    "exa-search",
+    "firecrawl",
+    "jina",
+    "jina-ai",
+    "serpapi",
+    "serper",
+    "google-search",
+    "bundle"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chendefine/dsh-web-search-aggregation.git"
+  },
+  "homepage": "https://github.com/chendefine/dsh-web-search-aggregation#readme",
+  "bugs": {
+    "url": "https://github.com/chendefine/dsh-web-search-aggregation/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "disclosure": {
+    "cloud": true,
+    "network": [
+      "search API endpoints configured per queue entry (default: api.anysearch.com, api.search.tinyfish.ai, api.tavily.com, api.search.brave.com, api.exa.ai, api.firecrawl.dev, s.jina.ai, serpapi.com, google.serper.dev)"
+    ],
+    "offlineMode": false,
+    "apiKeys": [
+      "user-supplied AnySearch / TinyFish / Tavily / Brave / Exa / Firecrawl / Jina / SerpApi / Serper keys, stored in the DSH credentials domain"
+    ],
+    "permissions": [
+      "network:fetch (queries the search endpoints the user configures)"
+    ],
+    "jurisdiction": [],
+    "retention": "none"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": ">=3.18.1-rc.1 <4"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1-rc.1 <5",
+    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1",
+    "@deepseek-ai/dsh-settings": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1",
+    "@deepseek-ai/dsh-web": ">=0.1.0-rc.6 <0.2.0 || >=0.1.1-rc.1 <1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.1",
+    "@deepseek-ai/dsh-api-remotes": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-connection": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-locale": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-runtime": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-ui-settings": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-ui-settings-plugins": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-client-ui-slots": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-credentials": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-settings": "0.1.1-rc.1",
+    "@deepseek-ai/dsh-web": "0.1.1-rc.1",
+    "@types/node": "^24.0.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "lightningcss": "^1.32.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsdown": "^0.22.2",
+    "typescript": "^5.8.0",
+    "unrun": "^0.3.1",
+    "vitest": "^4.1.8"
+  }
+}

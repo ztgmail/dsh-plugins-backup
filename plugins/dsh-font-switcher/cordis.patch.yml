@@ -1,0 +1,7 @@
+# dsh-font-switcher bundle for DeepSeek Harness (dsh).
+# The node half registers the durable dsh-font-switcher settings namespace
+# (uiFont / codeFont); the client half adds a "字体" control to the session
+# header utilities and applies the chosen font to the whole interface.
+- insert:
+    - id: dsh-font-switcher
+      name: dsh-font-switcher

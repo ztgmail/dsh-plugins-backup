@@ -1,0 +1,16 @@
+{
+  "id": "dsh-font-switcher",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "description": "为整个 DSH 界面切换字体（界面字体 + 等宽/代码字体），实时预览并持久化。Switch the whole DSH UI font family (UI + monospace), live preview, persisted.",
+  "engines": {
+    "dsh": ">=0.1.0"
+  },
+  "contributes": {
+    "tools": [],
+    "skills": []
+  },
+  "client": {
+    "main": "./lib/client.js"
+  }
+}

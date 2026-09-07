@@ -1,0 +1,110 @@
+[
+  {
+    "slug": "noto-sans-sc",
+    "family": "Noto Sans SC",
+    "kind": "ui",
+    "files": [{ "file": "noto-sans-sc.var.woff2", "weightMin": 100, "weightMax": 900 }],
+    "license": "OFL-NotoSansSC.txt",
+    "source": "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+    "note": "思源黑体（Noto Sans CJK SC）可变字重 100-900，全量字形；OFL-1.1。"
+  },
+  {
+    "slug": "noto-serif-sc",
+    "family": "Noto Serif SC",
+    "kind": "ui",
+    "chunks": { "json": "assets/fonts/chunks/noto-serif-sc/noto-serif-sc.json" },
+    "license": "OFL-NotoSerifSC.txt",
+    "source": "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400..700&display=swap",
+    "note": "思源宋体（Noto Serif CJK SC）可变字重 400-700，Google Fonts unicode-range 分片（全量字形）；OFL-1.1。"
+  },
+  {
+    "slug": "lxgw-wenkai",
+    "family": "LXGW WenKai",
+    "kind": "ui",
+    "files": [{ "file": "lxgw-wenkai.woff2", "weight": 400 }],
+    "license": "OFL-LXGWWenKai.txt",
+    "source": "https://cdn.jsdelivr.net/gh/lxgw/LxgwWenKai@v1.510/fonts/TTF/LXGWWenKai-Regular.ttf",
+    "note": "霞鹜文楷 Regular 全量字形；OFL-1.1（Reserved Font Name）。"
+  },
+  {
+    "slug": "harmonyos-sans-sc",
+    "family": "HarmonyOS Sans SC",
+    "kind": "ui",
+    "files": [
+      { "file": "harmonyos-sans-sc-400.woff2", "weight": 400 },
+      { "file": "harmonyos-sans-sc-500.woff2", "weight": 500 },
+      { "file": "harmonyos-sans-sc-700.woff2", "weight": 700 }
+    ],
+    "license": "HarmonyOS-Sans-SC-LICENSE.txt",
+    "source": "https://developer.huawei.com/images/download/general/HarmonyOS-Sans.zip",
+    "note": "华为 HarmonyOS Sans SC（Regular/Medium/Bold，全量字形）；许可明确允许随软件 bundle/redistribute。"
+  },
+  {
+    "slug": "misans",
+    "family": "MiSans",
+    "kind": "ui",
+    "files": [{ "file": "misans-vf.woff2", "weightMin": 150, "weightMax": 700 }],
+    "license": "MiSans-License-Notice.txt",
+    "source": "https://hyperos.mi.com/font-download/MiSans.zip",
+    "note": "小米 MiSans 可变字体（官方 MiSansVF，wght 150-700），全量字形；免费商用、允许嵌入（须显著注明）。"
+  },
+  {
+    "slug": "oppo-sans",
+    "family": "OPPO Sans 4.0",
+    "kind": "ui",
+    "files": [{ "file": "oppo-sans-4.woff2", "weightMin": 100, "weightMax": 700 }],
+    "license": "OPPO-Sans-4.0-License-Notice.txt",
+    "source": "https://openfs.oppomobile.com/open/oop/202412/05/0f155015fff7700fbbcef7fa2aad78dc.zip",
+    "note": "OPPO Sans 4.0 官方可变字体（wght 100-700），全量字形；免费商用（含商业用途）。"
+  },
+  {
+    "slug": "cascadia-code",
+    "family": "Cascadia Code",
+    "kind": "code",
+    "files": [{ "file": "cascadia-code.var.woff2", "weightMin": 200, "weightMax": 700 }],
+    "license": "OFL-CascadiaCode.txt",
+    "source": "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/cascadiacode/CascadiaCode%5Bwght%5D.ttf",
+    "note": "微软 Cascadia Code 可变字体；OFL-1.1。"
+  },
+  {
+    "slug": "jetbrains-mono",
+    "family": "JetBrains Mono",
+    "kind": "code",
+    "files": [{ "file": "jetbrains-mono.var.woff2", "weightMin": 100, "weightMax": 800 }],
+    "license": "OFL-JetBrainsMono.txt",
+    "source": "https://cdn.jsdelivr.net/gh/JetBrains/JetBrainsMono@2.304/fonts/variable/JetBrainsMono%5Bwght%5D.ttf",
+    "note": "JetBrains Mono 官方可变字体；OFL-1.1。"
+  },
+  {
+    "slug": "fira-code",
+    "family": "Fira Code",
+    "kind": "code",
+    "chunks": { "json": "assets/fonts/chunks/fira-code/fira-code.json" },
+    "license": "OFL-FiraCode.txt",
+    "source": "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400..700&display=swap",
+    "note": "Fira Code 可变 400-700（unicode-range 分片）；OFL-1.1。"
+  },
+  {
+    "slug": "source-code-pro",
+    "family": "Source Code Pro",
+    "kind": "code",
+    "files": [{ "file": "source-code-pro.var.woff2", "weightMin": 200, "weightMax": 900 }],
+    "license": "OFL-SourceCodePro.txt",
+    "source": "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/sourcecodepro/SourceCodePro%5Bwght%5D.ttf",
+    "note": "Adobe Source Code Pro 官方可变字体；OFL-1.1。"
+  },
+  {
+    "slug": "ibm-plex-mono",
+    "family": "IBM Plex Mono",
+    "kind": "code",
+    "files": [
+      { "file": "ibm-plex-mono-400.woff2", "weight": 400 },
+      { "file": "ibm-plex-mono-500.woff2", "weight": 500 },
+      { "file": "ibm-plex-mono-600.woff2", "weight": 600 },
+      { "file": "ibm-plex-mono-700.woff2", "weight": 700 }
+    ],
+    "license": "OFL-IBMPlexMono.txt",
+    "source": "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+    "note": "IBM Plex Mono 400/500/600/700；OFL-1.1。"
+  }
+]

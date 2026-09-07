@@ -1,0 +1,1510 @@
+/**
+ * Config Manager 设置页样式。全部颜色/字体/阴影走 DSH Design System 的
+ * --dsw-* token（跟随活动主题：亮/暗与皮肤），不另造视觉体系。
+ * 类名经 CSS Modules 哈希，不泄漏进 GUI 其他部分。
+ */
+
+/* ---------------- section shell ---------------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 10px;
+  color: var(--dsw-alias-label-primary);
+  font-family: var(--dsw-font-family);
+  font-size: 13px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.viewTabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+}
+
+.viewTab {
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.viewTab:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.viewTab[data-active] {
+  color: var(--dsw-alias-label-primary);
+  font-weight: 600;
+  border-bottom-color: var(--dsw-alias-state-business-primary);
+}
+
+.sectionBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 2px 16px;
+}
+
+/* ---------------- 区块标题 ---------------- */
+
+.sectionTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dsw-alias-label-primary);
+}
+
+.sectionSubtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1.5;
+}
+
+/* ---------------- 按钮 ---------------- */
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary-foreground);
+  background: var(--dsw-alias-button-info-fill);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--dsw-alias-button-info-hover);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ghostButton:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.ghostButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.dangerButton {
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--dsw-alias-state-error-primary);
+  background: transparent;
+  border: 1px solid var(--dsw-alias-state-error-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: var(--dsw-alias-state-error-primary);
+  color: var(--dsw-alias-label-primary-foreground);
+}
+
+.dangerButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---------------- 徽章 / 横幅 / 卡片 ---------------- */
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 1.6;
+  border-radius: 999px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
+}
+
+.badgeInfo {
+  color: var(--dsw-alias-state-business-primary);
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.badgeOk {
+  color: var(--dsw-alias-state-success-primary);
+  border-color: var(--dsw-alias-state-success-primary);
+}
+
+.badgeWarn {
+  color: var(--dsw-alias-state-warn-primary);
+  border-color: var(--dsw-alias-state-warn-primary);
+}
+
+.badgeError {
+  color: var(--dsw-alias-state-error-primary);
+  border-color: var(--dsw-alias-state-error-primary);
+}
+
+.banner {
+  padding: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  border-radius: 8px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-secondary);
+  overflow-wrap: anywhere;
+}
+
+.banner[data-kind='ok'] {
+  color: var(--dsw-alias-state-success-primary);
+  border-color: var(--dsw-alias-state-success-primary);
+}
+
+.banner[data-kind='error'] {
+  color: var(--dsw-alias-state-error-primary);
+  border-color: var(--dsw-alias-state-error-primary);
+}
+
+.banner[data-kind='info'] {
+  color: var(--dsw-alias-state-business-primary);
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.banner[data-kind='warn'] {
+  color: var(--dsw-alias-state-warn-primary);
+  border-color: var(--dsw-alias-state-warn-primary);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 10px;
+  flex: none;
+}
+
+/* ---------------- 表单 ---------------- */
+
+/* 向导卡片（一键上传 / 更新配置共用）：元素密集，间距比普通卡片略宽
+   （卡片内 10→14px、字段内 5→8px；取值见 DESIGN.md §4.2 spacing scale） */
+.wizardCard {
+  gap: 14px;
+}
+
+.wizardCard .field {
+  gap: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.input {
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-specific-input-major);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.input:focus {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.input::placeholder {
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.input:disabled {
+  opacity: 0.55;
+}
+
+/* select 专用样式（与 .input 区分）：去原生外观、主题化 chevron 箭头、
+   与输入框同高同圆角；仅用于真正需要下拉的空间（如「选择历史快照」）。 */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 7px 30px 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--dsw-alias-label-primary);
+  background-color: var(--dsw-specific-input-major);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--dsw-alias-label-secondary) 50%),
+    linear-gradient(135deg, var(--dsw-alias-label-secondary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) calc(50% - 1px),
+    calc(100% - 12px) calc(50% - 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--dsw-alias-border-l1);
+}
+
+.select:focus {
+  border-color: var(--dsw-alias-state-business-primary);
+}
+
+.select:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.select option {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+  line-height: 1.5;
+}
+
+.formError {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.checkboxRow input {
+  margin-top: 2px;
+  flex: none;
+}
+
+.radioLabel {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+}
+
+.secretFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 12px;
+  padding-top: 4px;
+}
+
+.hiddenFile {
+  display: none;
+}
+
+/* ---------------- 导出 ---------------- */
+
+.modeTabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+  flex: none;
+}
+
+.modeTab {
+  padding: 6px 12px;
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.modeTab:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.modeTab[data-active] {
+  color: var(--dsw-alias-label-primary);
+  font-weight: 600;
+  border-bottom-color: var(--dsw-alias-state-business-primary);
+}
+
+.modeHint {
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+  line-height: 1.5;
+}
+
+.groupList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupCard {
+  gap: 8px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.groupLabel {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 导入/同步后收尾清单（next-steps）：分组纵向排布，组间分隔（P0-①/P2-⑪） */
+.nextStepsGroup {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+}
+
+.nextStepsGroup .reportList {
+  margin-top: 6px;
+}
+
+/* P1-⑩：About CLI 引导卡 —— 安装命令等宽块 + 命令名等宽 */
+.cliCommand {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+}
+
+.cliName {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.groupNote {
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.groupItems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.categoryItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.categoryName {
+  font-weight: 500;
+}
+
+.categoryDesc {
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.optionsCard {
+  gap: 8px;
+}
+
+.optionsHeader {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+}
+
+.warnList {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ---------------- 进度 ---------------- */
+
+.progressBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+
+.progressMeta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.progressLabel {
+  font-weight: 600;
+}
+
+.progressDetail {
+  color: var(--dsw-alias-label-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
+}
+
+/* m3：分区徽章 / 内部计数徽章 */
+.progressBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.progressBadgeSection {
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 14%, transparent);
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.progressBadgeCount {
+  background: color-mix(in srgb, var(--dsw-alias-state-info-primary) 14%, transparent);
+  color: var(--dsw-alias-state-info-primary);
+}
+
+.progressPercent {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--dsw-alias-interactive-bg-hover);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dsw-alias-state-business-primary);
+  transition: width 120ms linear;
+}
+
+.progressBarDone {
+  background: var(--dsw-alias-state-success-primary);
+}
+
+.progressIndeterminate {
+  width: 40%;
+  animation: dshCmIndeterminate 1s ease-in-out infinite;
+}
+
+/* ---------------- 导入执行日志（importing 步骤进度条下方） ---------------- */
+
+.logPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+
+.logHeader {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 「↓ 新输出」跳底按钮：用户上滚后有新行时出现（§24 自动滚动纪律）；
+   复用 ghost 语义（L2 描边 + 细圆角），hover 走交互底色，不新增视觉体系 */
+.logJumpButton {
+  font-family: var(--dsw-font-family);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--dsw-alias-label-secondary);
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 999px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.logJumpButton:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 命令日志容器：限高内滚（长日志不把整页撑长；见 DESIGN.md §7.2 logScroll） */
+.logScroll {
+  max-height: 200px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 6px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+/* 单行命令/操作日志（等宽，与 .conflictDetail 同级视觉） */
+.logLine {
+  padding: 1px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.logEmpty {
+  padding: 6px 0;
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+@keyframes dshCmIndeterminate {
+  0% { margin-left: -40%; }
+  100% { margin-left: 100%; }
+}
+
+/* ---------------- 报告 ---------------- */
+
+.reportView {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.reportText {
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 260px;
+  overflow: auto;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-label-primary);
+}
+
+.reportFooter {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.rollbackBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--dsw-alias-state-warn-primary);
+  border-radius: 8px;
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.rollbackBox .reportText {
+  border-color: var(--dsw-alias-border-l2);
+}
+
+/* ---------------- 错误 ---------------- */
+
+.errorBanner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--dsw-alias-state-error-primary);
+  border-radius: 8px;
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+.errorTitle {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.errorReason {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.errorAction {
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.errorActionLabel {
+  color: var(--dsw-alias-state-business-primary);
+}
+
+.errorItem {
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.errorFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.errorList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.errorLine {
+  margin: 0;
+  padding: 6px 10px;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+/* ---------------- 冲突 ---------------- */
+
+.conflictList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conflictItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 8px;
+}
+
+.conflictHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.conflictId {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+.severityError {
+  font-size: 10.5px;
+  color: var(--dsw-alias-state-error-primary);
+  border: 1px solid var(--dsw-alias-state-error-primary);
+  border-radius: 999px;
+  padding: 0 6px;
+}
+
+.conflictDetail {
+  margin: 0;
+  padding: 6px 8px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.conflictOptions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* ---------------- 路径映射 ---------------- */
+
+.pathMappingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pathRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 8px;
+}
+
+.pathOld,
+.pathNew {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pathValue {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.pathIssueKind {
+  font-size: 10.5px;
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+/* ---------------- 密钥 / 空态 / spinner ---------------- */
+
+.secretsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty {
+  padding: 22px 12px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.spinnerWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 2px solid var(--dsw-alias-state-business-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: dshCmSpin 800ms linear infinite;
+  vertical-align: -1px;
+}
+
+.spinnerLabel {
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+@keyframes dshCmSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------- 快照恢复面板（M4） ---------------- */
+
+.snapshotList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* M4-滚动条修复：表头/数据行统一为「5 个内容列 + 尾部 auto 操作列」的 grid，
+   内容列允许收缩（minmax(0,…)）+ 单元格 ellipsis 截断 —— 长文件名 / 置顶后
+   📌 前缀 / 「取消置顶」按钮变宽都不再把行撑破（消灭页面左右滚动条）。
+   表头与数据行的前 5 列模板完全一致，保证列数据与列标题对齐。 */
+.snapshotRowHeader,
+.snapshotRowMain {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.2fr) minmax(0, 1.6fr) minmax(0, 90px) minmax(0, 56px) minmax(0, 56px);
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.snapshotRowHeader {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+  grid-template-columns:
+    minmax(0, 1.2fr) minmax(0, 1.6fr) minmax(0, 90px) minmax(0, 56px) minmax(0, 56px) auto;
+}
+
+/* 单元格长文本 ellipsis：grid 子项默认 min-width:auto 会按内容撑宽，
+   设 min-width:0 + overflow hidden 才可收缩（列数据与标题同时收紧） */
+.snapshotRowHeader > span,
+.snapshotRowMain > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* P1-⑧：快照行改为「可点击主区 + 行内操作（置顶/删除）」的双层结构。
+   外层 div 承载边框/选中态，内层 .snapshotRowMain 是点击选择的热区 */
+.snapshotRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  text-align: left;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.snapshotRowMain {
+  grid-template-columns:
+    minmax(0, 1.2fr) minmax(0, 1.6fr) minmax(0, 90px) minmax(0, 56px) minmax(0, 56px);
+  padding: 2px 0;
+  width: 100%;
+  text-align: left;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.snapshotRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.snapshotRow[data-active] {
+  border-color: var(--dsw-alias-state-business-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 10%, transparent);
+}
+
+.snapshotRow .actionRow {
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* ---------------- 配置档案列表（Profiles，m-profiles） ---------------- */
+/* 专用 4 列模板：档案名 / 分区 / 更新时间 / 操作(auto 尾列)，表头与数据行
+   前 3 列（内容列）模板完全一致 → 列数据与列标题对齐；列可收缩 + ellipsis，
+   消除「列对不齐 / 左右滚动条」（不再复用快照 5 内容列模板，列数不同） */
+.profileRowHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--dsw-alias-label-tertiary);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+}
+
+.profileRowHeader > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileRowHeader > span:last-child {
+  justify-self: end;
+  white-space: normal;
+}
+
+.profileRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  text-align: left;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.profileRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.profileRow[data-active] {
+  border-color: var(--dsw-alias-state-business-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 10%, transparent);
+}
+
+.profileRow .actionRow {
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.profileRowMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  color: var(--dsw-alias-label-primary);
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.profileRowMain > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------- 备份文件列表（快照面板 m-backup-files） ---------------- */
+/* flex 行 + 徽章（来源 auto/manual）+ 元信息 + 操作按钮（下载/导入/删除）；
+   与 .snapshotRow 同 token 体系（border-l1 + radius6），行内操作沿用 .actionRow 间距 */
+
+.backupFileList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.backupFileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 6px;
+}
+
+.backupFileName {
+  flex: 1 1 180px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 备份备注徽章：同 Badge(info) 视觉，但允许自动换行（长备注不再把行撑破出
+   横向滚动条；flex 行内 min-width:0 + wrap 兜底）。 */
+.backupFileNote {
+  display: inline-block;
+  min-width: 0;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 1.6;
+  border-radius: 999px;
+  border: 1px solid var(--dsw-alias-state-business-primary);
+  color: var(--dsw-alias-state-business-primary);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.backupFileMeta {
+  flex: none;
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.warnText {
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.reportList {
+  margin: 8px 0 4px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.kindTag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-secondary);
+}
+
+/* 变更明细分组的 kindTag 颜色变体（P2-⑬ 增强）：
+   冲突=error / 变更=info(business) / 路径映射=warn / 一致跳过=ok，
+   用 token 淡底 + 同色文字，亮暗主题都成立（color-mix 规则见 DESIGN.md §2.2） */
+.kindTagError {
+  background: color-mix(in srgb, var(--dsw-alias-state-error-primary) 14%, transparent);
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.kindTagWarn {
+  background: color-mix(in srgb, var(--dsw-alias-state-warn-primary) 14%, transparent);
+  color: var(--dsw-alias-state-warn-primary);
+}
+
+.kindTagOk {
+  background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 14%, transparent);
+  color: var(--dsw-alias-state-success-primary);
+}
+
+.kindTagInfo {
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 14%, transparent);
+  color: var(--dsw-alias-state-business-primary);
+}
+
+/* 变更明细分组块：组标题行 + 列表，组间分隔（P2-⑬ 分组展示） */
+.inspectGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.inspectGroup + .inspectGroup {
+  margin-top: 4px;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+  padding-top: 8px;
+}
+
+.inspectGroup .reportList {
+  margin-top: 2px;
+}
+
+/* 恢复计划详情容器：固定高度 + 内部滚动，数百条动作不再把整页撑长；
+   列表滚动、标题/汇总/执行按钮固定在容器外 */
+.planScroll {
+  height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 8px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+.planScroll .reportList {
+  margin-top: 6px;
+}
+
+/* 报告分区详情容器：同样限高内部滚动（多分区堆叠时避免整页失控） */
+.reportScroll {
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 6px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+.reportScroll .reportList {
+  margin-top: 4px;
+}
+
+/* 一键同步差异确认列表容器：限高 + 内部滚动（数百条差异项不再把整页撑长，
+   标题/摘要/批量按钮/确认按钮固定在容器外）；不触碰共用 .reportList 的其它区块 */
+.confirmScroll {
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 6px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+.confirmScroll .reportList {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* 远程同步「拉取差异预览」列表容器：固定高度 + 内部滚动（变更项再多也不把整页撑长；
+   标题/汇总/提示固定在容器外）。区别于 .confirmScroll 的 max-height，这里用固定 height，
+   保证面板视觉高度恒定、仅内部滚动。 */
+.pullScroll {
+  height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 6px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+.pullScroll .reportList {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* 拉取差异预览（details 展开后的 diff）：限高 + 内部滚动，diff 项多时不把整页撑长 */
+.diffScroll {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 10px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* ---------------- 迁移前咨询（Phase 7） ---------------- */
+
+/* 咨询维度明细容器：限高内滚（多维度堆叠不把整页撑长） */
+.consultScroll {
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 10px 6px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+/* 单个咨询维度块：上下留白 + 分隔 */
+.consultDimension {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+}
+
+.consultDimension:last-child {
+  border-bottom: none;
+}
+
+.consultDimension .reportList {
+  margin-top: 4px;
+}
+
+/* ---------------- 关于（About）面板 ---------------- */
+
+/* 链接行：外链排布，flex-wrap + gap 10px（与 .actionRow 同距，见 DESIGN.md §4.2 间距表） */
+.aboutLinkRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 作者行：可点外链（GitHub 主页），13px 正文、label-primary，hover 转 interactive-bg-hover */
+.aboutAuthor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary);
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.aboutAuthor:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+/* ---------------- 确认弹窗 ConfirmDialog（DESIGN.md §8.11；项目首个 fixed/z-index 浮动层，
+   §15 Anti-pattern #7 已登记豁免，z-index 100） ---------------- */
+
+/* 遮罩：全屏 fixed + 半透明背景（color-mix 调 token，禁硬编码 rgba）；
+   点击遮罩（非卡片）关闭由组件判断 e.target===currentTarget */
+.dialogMask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--dsw-alias-bg-base) 55%, transparent);
+  padding: 20px;
+}
+
+/* 卡片：与 .card 同 token 体系（bg-layer-2 + border-l1 + radius10），限宽 420px */
+.dialogCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, 100%);
+  max-height: 80vh;
+  padding: 14px;
+  background: var(--dsw-alias-bg-layer-2);
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--dsw-alias-bg-base) 40%, transparent);
+}
+
+/* 标题：与 .groupLabel 同视觉层级 */
+.dialogHeader {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 正文：限高内滚（长 message 安全，仿 .confirmScroll 模式）+ flex 纵向排布，
+   子元素（message / children）之间 gap 10px（与 .dialogCard 内部间距一致，
+   避免多个块级/行内元素贴在一起） */
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dsw-alias-label-primary);
+  white-space: pre-wrap;
+}
+
+/* ---------------- 操作弹窗（2026-08-21：上传/下载/装回本地搬进弹窗，DESIGN.md §8.12） ---------------- */
+
+/* 宽版卡片：与 .dialogCard 同 token 体系，放宽到 560px（表单/详情内容更长） */
+.dialogWide {
+  width: min(560px, 100%);
+}
+
+/* 弹窗正文（操作弹窗用）：70vh 限高内滚（详情/表单长内容安全，替代 240px 的短版）
+   + flex 纵向排布，子元素之间 gap 10px（与 .card/.dialogCard 内部间距一致；
+   弹窗内平铺的 tab/Banner/字段/操作行/hint 等不再紧贴，也与页面视图 .viewBody
+   的纵向节奏一致） */
+.dialogBodyScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dsw-alias-label-primary);
+  white-space: normal;
+}
+
+/* 弹窗头部行：标题 + 关闭按钮（操作弹窗） */
+.dialogHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* 弹窗关闭按钮（×）：ghost 语义、紧凑 */
+.dialogClose {
+  background: none;
+  border: none;
+  padding: 2px 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.dialogClose:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-bg-hover);
+}
+
+/* ---------- Phase 6：迁移历史面板 ---------- */
+/* 按 kind 分组的卡片内分组（组标题 + 限高内滚列表） */
+.historyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.historyGroup + .historyGroup {
+  border-top: 1px solid var(--dsw-alias-border-l1);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+/* 历史列表限高内滚（长历史不得撑长页面） */
+.historyScroll {
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 4px;
+  background: var(--dsw-alias-bg-base);
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+/* 单条历史行：时间/结果徽章/分区/摘要；可收缩 + 截断 */
+.historyRow {
+  display: grid;
+  grid-template-columns: minmax(0,1.4fr) auto minmax(0,1fr) minmax(0,1.6fr);
+  gap: 10px;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 6px;
+}
+.historyRow:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+.historyRowMain {
+  display: contents;
+}
+.historyTime {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--dsw-alias-label-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.historySections {
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.historySummary {
+  font-size: 12px;
+  color: var(--dsw-alias-label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

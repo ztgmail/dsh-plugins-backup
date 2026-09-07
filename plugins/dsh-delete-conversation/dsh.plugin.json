@@ -1,0 +1,16 @@
+{
+  "id": "dsh-delete-conversation",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "description": "在会话头部提供「删除会话」操作：将该会话从列表中移除（保留本地历史文件，非破坏性）。Adds a conversation-header delete action that removes the session from the list while keeping its files.",
+  "engines": {
+    "dsh": ">=0.1.0"
+  },
+  "contributes": {
+    "tools": [],
+    "skills": []
+  },
+  "client": {
+    "main": "./lib/client.js"
+  }
+}

@@ -1,0 +1,53 @@
+/**
+ * dsh-session-state — Host half.
+ *
+ * Registers the durable `dsh-session-state` settings namespace (three toggles)
+ * so the browser settingsScope can read them. The values persist in the
+ * user-settings document (`~/.dsh/settings.yaml`).
+ */
+import { settingsNamespace } from "@deepseek-ai/dsh-settings";
+import z from "@deepseek-ai/schemastery";
+
+/** Settings namespace owned by the dsh-session-state plugin. */
+export const SETTINGS_NAMESPACE = "dsh-session-state";
+/** Fold the assistant thinking/reasoning rows so the answer renders directly. */
+export const COLLAPSE_THINKING_FIELD = "collapseThinking";
+/** Fold the tool-call content rows (Bash/Edit/Read/…) so the answer renders directly. */
+export const COLLAPSE_TOOLS_FIELD = "collapseTools";
+/** 除了 Think/Edit/Bash/Read 这 4 个状态之外，其他所有状态都折叠 */
+export const COLLAPSE_OTHER_FIELD = "collapseOther";
+/** Show the session-activity status bar above the composer. */
+export const STATUS_BAR_FIELD = "statusBar";
+/** Count mode: true = show only the current (last) user-run activity; false = cumulative over the whole session. */
+export const COUNT_RUN_MODE_FIELD = "countRunMode";
+/** While folding is on, keep rows that are still running visible (native one-line form); fold only settled rows. */
+export const LIVE_RUNNING_FIELD = "liveRunning";
+
+/**
+ * Durable dsh-session-state schema; also the wire envelope the browser scope
+ * validates against. Keep the field keys and defaults in sync with the client
+ * half (`lib/client.js`).
+ */
+export const SessionManageSettingsSchema = z.object({
+  [COLLAPSE_THINKING_FIELD]: z.boolean().default(true),
+  [COLLAPSE_TOOLS_FIELD]: z.boolean().default(true),
+  [COLLAPSE_OTHER_FIELD]: z.boolean().default(false),
+  [STATUS_BAR_FIELD]: z.boolean().default(true),
+  [COUNT_RUN_MODE_FIELD]: z.boolean().default(true),
+  [LIVE_RUNNING_FIELD]: z.boolean().default(true),
+});
+
+/** Cordis plugin identity (used by the loader/composition). */
+export const name = "dsh-session-state";
+/** Node half waits for the settings service before registering the namespace. */
+export const inject = ["settings"];
+
+/**
+ * Host half of the plugin: register the durable settings namespace.
+ * @param ctx - Host cordis context.
+ */
+export function apply(ctx) {
+  ctx.inject(["settings"], (settingsCtx) => {
+    settingsCtx.settings.register(settingsNamespace(SETTINGS_NAMESPACE), SessionManageSettingsSchema);
+  });
+}

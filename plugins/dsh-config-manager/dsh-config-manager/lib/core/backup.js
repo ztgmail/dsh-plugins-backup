@@ -1,0 +1,471 @@
+/**
+ * Pre-import Snapshot（规范 §16/§27）：只保存本次导入将被修改的目标原值。
+ * 应用层事务的基础：所有补偿动作基于快照（rollback.ts 逆序执行）。
+ *
+ * 快照不保存 credential 值（DSH 永不回读值）——credential 条目只记 existed 标志，
+ * 回滚时 existed=true 的条目如实标记「值需人工补录」。
+ */
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { parseJsonSafe } from "../utils/json.js";
+import { sha256Hex } from "../utils/hashing.js";
+import { normalizePath } from "../utils/paths.js";
+import { atomicWriteFile } from "../utils/atomic-write.js";
+/** 导入将实际写入的目标 kinds（这些项才需要快照） */
+const EXECUTABLE_KINDS = new Set(['Create', 'Update', 'Install', 'MissingSecret', 'MissingDependency']);
+/**
+ * 需要整文件备份的宿主关键文件（相对 $DSH_HOME）：
+ *  - settings.yaml（DSH 配置主存储；不存在时探测 settings.json）
+ *  - cordis.patch.yml（用户 patch 层）
+ *  - profiles/<profile>/cordis.patch.yml（profile patch 层，宿主暴露 profile 时）
+ */
+const HOST_FILE_CANDIDATES = [
+    { relPath: 'settings.yaml' },
+    { relPath: 'settings.json' },
+    { relPath: 'cordis.patch.yml' },
+];
+/**
+ * 宿主整文件备份（M1）：探测存在性，存在的文件字节进 blobs Map 由 store.save 落盘，
+ * 全部候选（含 existed:false）登记进 hostFileBackups，供 M2 restore 整文件还原。
+ */
+async function backupHostFiles(ctx, blobs) {
+    const candidates = [...HOST_FILE_CANDIDATES];
+    if (ctx.profile !== undefined && ctx.profile !== '') {
+        candidates.push({ relPath: `profiles/${ctx.profile}/cordis.patch.yml` });
+        // pnpm-workspace.yaml 决定插件能否安装（allowBuilds/冷静期）→ 一并纳入宿主整文件备份
+        candidates.push({ relPath: `profiles/${ctx.profile}/pnpm-workspace.yaml` });
+    }
+    const backups = [];
+    for (const { relPath } of candidates) {
+        // settings.yaml 与 settings.json 互斥：主存储存在时不再探测 json 备选
+        if (relPath === 'settings.json' && backups.some((b) => b.relPath === 'settings.yaml' && b.existed)) {
+            continue;
+        }
+        let existed = false;
+        try {
+            existed = await ctx.fs.exists(relPath);
+        }
+        catch (err) {
+            ctx.log.warn(`快照探测宿主文件失败 ${relPath}: ${err instanceof Error ? err.message : String(err)}`);
+            existed = false;
+        }
+        if (!existed) {
+            backups.push({ relPath, blobPath: '', existed: false });
+            continue;
+        }
+        const blobPath = `blobs/host/${crypto.randomUUID()}`;
+        try {
+            blobs.set(blobPath, await ctx.fs.readFile(relPath));
+            backups.push({ relPath, blobPath, existed: true });
+        }
+        catch (err) {
+            ctx.log.warn(`快照读取宿主文件失败 ${relPath}: ${err instanceof Error ? err.message : String(err)}`);
+            backups.push({ relPath, blobPath: '', existed: false });
+        }
+    }
+    return backups;
+}
+/** 文件类分区的目标基准目录（相对 homeDir；pluginFiles/self 的 ref 已是完整相对路径） */
+const FILE_BASES = {
+    skills: 'skills',
+    agentPresets: '.agent-presets',
+    agentInstructions: '', // homeDir 根（~/.dsh/AGENTS.md）
+    pluginFiles: '',
+    sessions: 'sessions',
+    self: 'dsh-config-manager',
+};
+/** 解析文件类目标的绝对路径（引擎通用快照与回滚共用） */
+export function resolveFileTarget(ctx, adapter, ref) {
+    // plugins 分区的 pnpm-workspace.yaml：位于 profiles/<profile>/ 下（非 FILE_BASES 静态基准）
+    if (adapter === 'plugins' && ref === 'pnpm-workspace.yaml') {
+        const profile = ctx.profile !== undefined && ctx.profile !== '' ? ctx.profile : 'web';
+        return path.join(ctx.homeDir, 'profiles', profile, 'pnpm-workspace.yaml');
+    }
+    const base = FILE_BASES[adapter] ?? '';
+    return path.join(ctx.homeDir, base, ref);
+}
+/**
+ * 文件类目标的 home-relative 相对路径（P2-B，Phase 8）。
+ * 供导入逐项指纹（analyzer 经 HostContext.fs.readFile(read rel) 读文件算 sha256）
+ * 与 journal step.ref 的 posix 规范化。仅适用于 isFileSection adapter。
+ */
+export function resolveFileTargetRel(adapter, ref) {
+    const base = FILE_BASES[adapter] ?? '';
+    return normalizePath(path.join(base, ref));
+}
+/** 从计划中收集将被写入的 target（去重） */
+function collectTargets(plan) {
+    const seen = new Set();
+    const targets = [];
+    for (const item of plan.items) {
+        if (!EXECUTABLE_KINDS.has(item.kind) || item.target === undefined)
+            continue;
+        const key = `${item.target.adapter}\u0000${item.target.ref}`;
+        if (seen.has(key))
+            continue;
+        seen.add(key);
+        targets.push(item.target);
+    }
+    return targets;
+}
+/** 引擎通用快照（adapter 未实现 snapshot? 时兜底） */
+async function engineSnapshotEntry(ctx, target) {
+    switch (target.adapter) {
+        case 'settings':
+        case 'ui':
+        case 'providers': {
+            try {
+                const info = await ctx.settings.describe(target.ref);
+                return { kind: 'settingsNamespace', adapter: target.adapter, ref: target.ref, before: info.value, revision: info.revision, existed: true };
+            }
+            catch {
+                // 目标不存在该 namespace → 快照标记 existed:false（回滚时无法恢复「不存在」，如实处理）
+                return { kind: 'settingsNamespace', adapter: target.adapter, ref: target.ref, before: null, revision: 0, existed: false };
+            }
+        }
+        case 'credentialsStatus': {
+            const info = await ctx.credentials.describe(target.ref);
+            return { kind: 'credential', adapter: target.adapter, ref: target.ref, before: null, existed: info.configured };
+        }
+        case 'workspaces': {
+            const records = await ctx.workspace.listRecords();
+            const rec = records.find((r) => r.id === target.ref);
+            return { kind: 'workspaceRecord', adapter: target.adapter, ref: target.ref, before: rec ?? null };
+        }
+        case 'mcp':
+        case 'plugins':
+        case 'prompts': {
+            // plugins 分区的 pnpm-workspace.yaml → 整文件快照（file 类，回滚可整文件还原）
+            if (target.adapter === 'plugins' && target.ref === 'pnpm-workspace.yaml') {
+                const abs = resolveFileTarget(ctx, target.adapter, target.ref);
+                if (!(await ctx.fs.exists(abs))) {
+                    return { kind: 'file', adapter: target.adapter, ref: target.ref, before: null, existed: false };
+                }
+                const data = await ctx.fs.readFile(abs);
+                return {
+                    kind: 'file',
+                    adapter: target.adapter,
+                    ref: target.ref,
+                    before: { contentHash: sha256Hex(data) },
+                    existed: true,
+                    copiedTo: `blobs/${crypto.randomUUID()}`,
+                };
+            }
+            // patchLine：从组合 patch 文件读取原行（file 为必填的 file 字段约定为 'cordis.patch.yml'）
+            const file = 'cordis.patch.yml';
+            const lines = await ctx.patchFile.readPatchLines(file);
+            const line = lines.find((l) => l.lineId === target.ref);
+            return { kind: 'patchLine', adapter: target.adapter, ref: target.ref, before: line?.raw ?? null, existed: line !== undefined };
+        }
+        case 'skills':
+        case 'agentPresets':
+        case 'agentInstructions':
+        case 'pluginFiles':
+        case 'sessions':
+        case 'self': {
+            const abs = resolveFileTarget(ctx, target.adapter, target.ref);
+            if (!(await ctx.fs.exists(abs))) {
+                return { kind: 'file', adapter: target.adapter, ref: target.ref, before: null, existed: false };
+            }
+            const data = await ctx.fs.readFile(abs);
+            // 文件字节不放进 SnapshotEntry（契约纯净），由 createSnapshot 收集进 blobs Map 统一落盘
+            return {
+                kind: 'file',
+                adapter: target.adapter,
+                ref: target.ref,
+                before: { contentHash: sha256Hex(data) },
+                existed: true,
+                copiedTo: `blobs/${crypto.randomUUID()}`,
+            };
+        }
+        default:
+            return { kind: 'settingsNamespace', adapter: target.adapter, ref: target.ref, before: null };
+    }
+}
+/**
+ * 生成并落盘快照：只覆盖将被写入的目标。
+ * 文件字节经 blobs Map 交给 store.save（SnapshotEntry 契约不含二进制）。
+ */
+export async function createSnapshot(opts) {
+    const { ctx, plan, sourceZip, store, adapters } = opts;
+    const targets = collectTargets(plan);
+    const entries = [];
+    const blobs = new Map();
+    // 1) 有 adapter.snapshot? 的优先（adapter 更懂自己的数据）
+    const byAdapter = new Map();
+    for (const t of targets) {
+        const list = byAdapter.get(t.adapter) ?? [];
+        list.push(t);
+        byAdapter.set(t.adapter, list);
+    }
+    for (const adapter of adapters) {
+        const adapterTargets = byAdapter.get(adapter.id);
+        if (!adapterTargets || adapterTargets.length === 0)
+            continue;
+        if (adapter.snapshot) {
+            const adapterEntries = await adapter.snapshot(adapterTargets, ctx);
+            entries.push(...adapterEntries);
+            byAdapter.delete(adapter.id);
+        }
+    }
+    // 2) 引擎通用快照兜底
+    for (const [adapterId, remaining] of byAdapter) {
+        for (const target of remaining) {
+            const entry = await engineSnapshotEntry(ctx, target);
+            // 文件字节：文件类条目在引擎快照里读出内容 → blobs
+            if (entry.kind === 'file' && entry.copiedTo && entry.existed) {
+                const abs = resolveFileTarget(ctx, adapterId, target.ref);
+                blobs.set(entry.copiedTo, await ctx.fs.readFile(abs));
+            }
+            entries.push(entry);
+        }
+    }
+    // 3) 宿主整文件备份（M1）：settings.yaml/settings.json + 用户/ profile 层 cordis.patch.yml
+    const hostFileBackups = await backupHostFiles(ctx, blobs);
+    // 4) 导入前插件清单（M2 restore 撤销插件对比基准；读取失败不阻断快照）
+    let beforePlugins = [];
+    try {
+        beforePlugins = await ctx.plugins.listInstalled();
+    }
+    catch (err) {
+        ctx.log.warn(`快照登记插件清单失败: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    const snapshot = {
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        sourceZip,
+        entries,
+        status: 'pending',
+        beforePlugins,
+        hostFileBackups,
+        // Phase 4：operation-bound binding（journal ↔ snapshot 双向一致）
+        ...(opts.operationId !== undefined ? { operationId: opts.operationId } : {}),
+        ...(opts.operationType !== undefined ? { operationType: opts.operationType } : {}),
+        ...(opts.environmentFingerprint !== undefined ? { environmentFingerprint: opts.environmentFingerprint } : {}),
+        ...(opts.ownerInstanceId !== undefined ? { ownerInstanceId: opts.ownerInstanceId } : {}),
+    };
+    // file 条目登记 snapshotId，回滚读 blob 时定位快照目录
+    for (const entry of snapshot.entries) {
+        if (entry.kind === 'file')
+            entry.snapshotId = snapshot.id;
+    }
+    await store.save(snapshot, blobs);
+    return snapshot;
+}
+/* ---------------- 默认文件快照存储 ---------------- */
+/** 快照保留上限：save 落盘后超过该数量则删除最旧快照目录 */
+export const SNAPSHOT_RETENTION_LIMIT = 10;
+/** 纯函数：返回应清理的最旧快照 id（按 createdAt 升序取超限部分；恰好 limit 个 → 空数组）。
+ * 参数用最小结构类型，避免引入 restore.ts 的 SnapshotMeta 造成循环 import。 */
+export function selectPruneCandidates(metas, limit = SNAPSHOT_RETENTION_LIMIT) {
+    if (metas.length <= limit)
+        return [];
+    const sorted = [...metas].sort((a, b) => (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0));
+    return sorted.slice(0, sorted.length - limit).map((m) => m.id);
+}
+/** 文件快照存储：<dir>/<id>/snapshot.json + <dir>/<id>/blobs/* */
+export class FileSnapshotStore {
+    options;
+    constructor(options) {
+        this.options = options;
+    }
+    snapshotDir(id) {
+        return path.join(this.options.dir, id);
+    }
+    async save(snapshot, blobs = new Map()) {
+        const dir = this.snapshotDir(snapshot.id);
+        await fs.mkdir(path.join(dir, 'blobs'), { recursive: true });
+        // 1) 写 blobs
+        for (const [blobPath, data] of blobs) {
+            const target = path.join(dir, blobPath);
+            if (!target.startsWith(dir))
+                throw new Error(`快照 blob 路径越界: ${blobPath}`);
+            await fs.mkdir(path.dirname(target), { recursive: true });
+            await atomicWriteFile(target, data);
+        }
+        // 2) 写 snapshot.json（readiness='CREATING'，未完成不可用）
+        const creating = { ...snapshot, readiness: 'CREATING' };
+        await atomicWriteFile(path.join(dir, 'snapshot.json'), JSON.stringify(creating, null, 2));
+        // 3) 写 manifest（blob hashes + 破坏性内容 hash；metadataHash 稳定，不含 readiness/status）
+        const blobHashes = {};
+        for (const [blobPath, data] of blobs) {
+            blobHashes[blobPath] = sha256Hex(data);
+        }
+        const manifest = {
+            schemaVersion: 1,
+            snapshotId: snapshot.id,
+            entryCount: snapshot.entries.length,
+            blobHashes,
+            metadataHash: computeMetadataHash(snapshot),
+        };
+        await atomicWriteFile(path.join(dir, 'manifest.json'), JSON.stringify(manifest, null, 2));
+        // 4) 验证（从磁盘重读，不信任内存对象）
+        const verified = await verifySnapshot(this.options.dir, snapshot.id);
+        if (!verified.ok) {
+            throw new Error(`快照 ${snapshot.id} 验证失败: ${verified.reason}`);
+        }
+        // 5) 原子发布 READY（重写 snapshot.json readiness='READY'；metadataHash 稳定不受影响）
+        const ready = { ...snapshot, readiness: 'READY' };
+        await atomicWriteFile(path.join(dir, 'snapshot.json'), JSON.stringify(ready, null, 2));
+        // 6) 保留清理（F13：prune 失败不中止已 durable 的 READY 快照——日志记录，upgrade 可继续）
+        try {
+            await this.prune();
+        }
+        catch (err) {
+            // 快照已 READY + verified；prune 失败（EBUSY/EPERM）不应把刚成功的快照判为 unusable
+        }
+        return snapshot.id;
+    }
+    /** 保留清理：扫描快照根目录，超限时删除最旧快照目录（损坏/非快照目录跳过；目录缺失容错）。
+   *  P1-⑧：置顶（pinned=true）的快照豁免自动清理——用户显式保留的导入前回滚点不得被
+   *  自动淘汰，只能手动删除（deleteSnapshot）。
+   *  Phase 4 F3：被 active/quarantine 未收敛 journal 引用的 snapshot（recovery 回滚点）
+   *  必须豁免——引用提供者（referencedSnapshotIds）返回的 id 绝不自动清理。 */
+    async prune() {
+        const dir = this.options.dir;
+        const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
+        const referenced = await this.options.referencedSnapshotIds?.().catch(() => new Set()) ?? new Set();
+        const metas = [];
+        for (const entry of entries) {
+            if (!entry.isDirectory())
+                continue;
+            try {
+                const parsed = parseJsonSafe(await fs.readFile(path.join(dir, entry.name, 'snapshot.json'), 'utf8'));
+                if (typeof parsed.id !== 'string' || parsed.id === '' || typeof parsed.createdAt !== 'string')
+                    continue;
+                if (parsed.pinned === true)
+                    continue; // 置顶快照豁免自动清理
+                if (referenced.has(parsed.id))
+                    continue; // Phase 4 F3：recovery 引用豁免
+                metas.push({ id: parsed.id, createdAt: parsed.createdAt });
+            }
+            catch {
+                // 损坏 / 非快照目录：跳过（与 listSnapshots 语义一致）
+            }
+        }
+        const removedIds = [];
+        for (const id of selectPruneCandidates(metas)) {
+            const target = path.join(dir, id);
+            if (!target.startsWith(dir))
+                continue; // 越界 id 跳过（不删、不抛，同 save/readBlob 包含性约定）
+            await fs.rm(target, { recursive: true, force: true });
+            removedIds.push(id);
+        }
+        // Phase 6：自动保留清理历史回调（best-effort；不改变 prune 行为）
+        if (removedIds.length > 0) {
+            try {
+                this.options.onPrune?.(removedIds);
+            }
+            catch { /* 历史回调失败不阻断 */ }
+        }
+    }
+    async load(id) {
+        const raw = await fs.readFile(path.join(this.snapshotDir(id), 'snapshot.json'), 'utf8');
+        return parseJsonSafe(raw);
+    }
+    async readBlob(id, blobPath) {
+        const target = path.join(this.snapshotDir(id), blobPath);
+        const dir = this.options.dir;
+        if (!target.startsWith(dir))
+            throw new Error(`快照 blob 路径越界: ${blobPath}`);
+        return fs.readFile(target);
+    }
+    /** 标记快照生命周期状态：重写 <dir>/<id>/snapshot.json（保留其余字段）。 */
+    async updateStatus(id, status) {
+        const file = path.join(this.snapshotDir(id), 'snapshot.json');
+        const snapshot = parseJsonSafe(await fs.readFile(file, 'utf8'));
+        snapshot.status = status;
+        await atomicWriteFile(file, JSON.stringify(snapshot, null, 2));
+    }
+}
+/* ---------------- Phase 4：manifest / verifySnapshot（F1） ---------------- */
+/**
+ * 破坏性内容 hash（稳定，不含 readiness/status）：entries + hostFileBackups + beforePlugins。
+ * READY 发布与 status 更新不改变此 hash（B-P1-1 修复）。
+ */
+export function computeMetadataHash(snapshot) {
+    const destructive = {
+        entries: snapshot.entries,
+        hostFileBackups: snapshot.hostFileBackups ?? [],
+        beforePlugins: snapshot.beforePlugins ?? [],
+    };
+    return sha256Hex(new TextEncoder().encode(JSON.stringify(destructive)));
+}
+/**
+ * 从磁盘重读并验证快照（F1）：id 合法 + snapshot.json 存在 + manifest 存在 + blob hashes 匹配 +
+ * metadataHash 匹配 + 必要 blobs 存在 + 路径安全。不信任内存对象。
+ */
+export async function verifySnapshot(snapshotsDir, id) {
+    const dir = path.join(snapshotsDir, id);
+    if (!dir.startsWith(path.resolve(snapshotsDir) + path.sep)) {
+        return { ok: false, reason: '快照路径越界' };
+    }
+    let raw;
+    try {
+        raw = await fs.readFile(path.join(dir, 'snapshot.json'), 'utf8');
+    }
+    catch {
+        return { ok: false, reason: 'snapshot.json 缺失' };
+    }
+    const snapshot = parseJsonSafe(raw);
+    if (snapshot === null || typeof snapshot !== 'object' || typeof snapshot.id !== 'string' || snapshot.id === '') {
+        return { ok: false, reason: 'snapshot.json 非法' };
+    }
+    if (snapshot.id !== id) {
+        return { ok: false, reason: 'snapshot.id 与目录不匹配' };
+    }
+    let manifestRaw;
+    try {
+        manifestRaw = await fs.readFile(path.join(dir, 'manifest.json'), 'utf8');
+    }
+    catch {
+        return { ok: false, reason: 'manifest.json 缺失' };
+    }
+    const manifest = parseJsonSafe(manifestRaw);
+    if (manifest === null || typeof manifest !== 'object' || manifest.snapshotId !== id) {
+        return { ok: false, reason: 'manifest 非法或 snapshotId 不匹配' };
+    }
+    // entryCount 匹配（manifest 声明条目数与实际一致，防计数篡改）
+    if (typeof manifest.entryCount !== 'number' || manifest.entryCount !== snapshot.entries.length) {
+        return { ok: false, reason: 'manifest.entryCount 与 snapshot.entries 不一致（篡改）' };
+    }
+    // metadataHash 匹配（破坏性内容）
+    if (computeMetadataHash(snapshot) !== manifest.metadataHash) {
+        return { ok: false, reason: 'metadataHash 不匹配（破坏性内容被篡改）' };
+    }
+    // blob hashes 匹配 + 存在
+    for (const [blobPath, expectedHash] of Object.entries(manifest.blobHashes)) {
+        const target = path.join(dir, blobPath);
+        if (!target.startsWith(dir))
+            return { ok: false, reason: `blob 路径越界: ${blobPath}` };
+        let data;
+        try {
+            data = await fs.readFile(target);
+        }
+        catch {
+            return { ok: false, reason: `blob 缺失: ${blobPath}` };
+        }
+        if (sha256Hex(data) !== expectedHash) {
+            return { ok: false, reason: `blob hash 不匹配: ${blobPath}` };
+        }
+    }
+    // Review C P2：snapshot.json 引用的每个 blob（entries.copiedTo / hostFileBackups.blobPath）都必须被 manifest 覆盖，
+    // 否则攻击者可新增未被哈希校验的 blob（restore 会读+写）→ 覆盖任意 home 文件。
+    const referencedBlobs = [];
+    for (const e of snapshot.entries) {
+        if (e.kind === 'file' && e.copiedTo && e.copiedTo !== '')
+            referencedBlobs.push(e.copiedTo);
+    }
+    for (const hb of snapshot.hostFileBackups ?? []) {
+        if (hb.blobPath && hb.blobPath !== '' && hb.existed)
+            referencedBlobs.push(hb.blobPath);
+    }
+    for (const relBlob of referencedBlobs) {
+        if (!(relBlob in manifest.blobHashes)) {
+            return { ok: false, reason: `snapshot 引用的 blob 未在 manifest 中: ${relBlob}` };
+        }
+    }
+    return { ok: true };
+}
+//# sourceMappingURL=backup.js.map

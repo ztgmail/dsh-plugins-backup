@@ -1,0 +1,7 @@
+# dsh-delete-conversation bundle for DeepSeek Harness (dsh).
+# The node half is a no-op identity; the client half injects a
+# "Delete conversation" action into the conversation header actions seat
+# (conversation.session.header.actions).
+- insert:
+    - id: dsh-delete-conversation
+      name: dsh-delete-conversation

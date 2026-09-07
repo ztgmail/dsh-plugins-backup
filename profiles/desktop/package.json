@@ -1,0 +1,47 @@
+{
+  "name": "dsh-profile-desktop",
+  "private": true,
+  "dependencies": {
+    "@dhicoc/dsh-reverse-skill": "github:dhicoc/dsh-reverse-skill",
+    "@linxin666/dsh-client-ui-task-board": "0.3.14",
+    "@liustack/modlens": "3.25.4",
+    "@openviking/dsh-memory-plugin": "0.3.0",
+    "@wxg-prc-cpg/browser-skill-dsh-plugin": "0.2.0",
+    "dsh-better-sidebar": "0.18.0",
+    "dsh-builtin-browser": "0.1.21",
+    "dsh-client-auto-continue": "0.11.4",
+    "dsh-config-manager": "0.1.56",
+    "dsh-context": "0.41.3",
+    "dsh-delete-conversation": "file:D:/DSH/dsh-delete-conversation",
+    "dsh-font-switcher": "file:D:/DSH/dsh-font-switcher",
+    "dsh-pathlink": "file:D:/DSH/dsh-pathlink",
+    "dsh-session-state": "file:D:/DSH/dsh-session-state",
+    "dsh-web-search-aggregation": "0.1.10",
+    "dshmarket": "1.41.0"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@linxin666/dsh-client-ui-task-board",
+        "dsh-better-sidebar",
+        "dsh-web-search-aggregation",
+        "@liustack/modlens",
+        "dsh-builtin-browser",
+        "dshmarket",
+        "@openviking/dsh-memory-plugin",
+        "dsh-client-auto-continue",
+        "@wxg-prc-cpg/browser-skill-dsh-plugin",
+        "dsh-config-manager",
+        "dsh-context",
+        "dsh-delete-conversation",
+        "dsh-font-switcher",
+        "dsh-pathlink",
+        "dsh-session-state",
+        "@dhicoc/dsh-reverse-skill"
+      ],
+      "patchReload": "live"
+    }
+  }
+}
